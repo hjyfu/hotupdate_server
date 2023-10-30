@@ -8,7 +8,7 @@ fn main() -> Result<(), eframe::Error> {
     env_logger::init();
 
     let options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(520.0, 320.0)),
+        initial_window_size: Some(egui::vec2(550.0, 420.0)),
         ..Default::default()
     };
 
@@ -18,8 +18,8 @@ fn main() -> Result<(), eframe::Error> {
     let mut selected_json_path = String::new();
     let mut json_content = String::new();
     let mut log_message = String::new();
-
+    let mut port_input = String::new();
     eframe::run_simple_native("hotupdate_server", options, move |ctx, _frame| {
-        gui::render_ui(ctx, &mut ip_input, &mut input_text, &mut selected_file_path, &mut selected_json_path, &mut json_content, &mut log_message);
+        gui::render_ui(ctx, &mut ip_input, &mut input_text, &mut selected_file_path, &mut selected_json_path, &mut json_content, &mut log_message,&mut port_input);
     })
 }

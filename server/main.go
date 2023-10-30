@@ -1,10 +1,42 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
+
+func getPortFromSetting() string {
+	// 默认端口
+	defaultPort := ":8000"
+
+	// 打开设置文件
+	file, err := os.Open("./server/setting.ini")
+	if err != nil {
+		log.Printf("Error opening setting.ini: %s", err)
+		return defaultPort
+	}
+	defer file.Close()
+
+	// 逐行读取文件内容
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		// 检查是否有 "port=" 前缀
+		if strings.HasPrefix(line, "port=") {
+			return ":" + strings.TrimSpace(line[5:])
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("Error reading setting.ini: %s", err)
+	}
+
+	return defaultPort
+}
 
 func main() {
 	// 定义文件夹路径
@@ -21,8 +53,10 @@ func main() {
 	// 由于我们希望文件路径与URL路径对应，所以这里不使用StripPrefix
 	http.Handle("/", fileServer)
 
-	// 启动HTTP服务器
-	port := ":8000"
+	// 从setting.ini中获取port
+	port := getPortFromSetting()
+	fmt.Printf("prot:%s", port)
+
 	log.Printf("Serving %s on HTTP port: %s\n", dir, port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

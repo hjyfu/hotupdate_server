@@ -5,13 +5,16 @@ use std::fs;
 use std::path::Path;
 use std::fs::copy;
 use std::process::Command; // 引入Command
+use std::fs::write; // 引入write函数
 
 pub fn render_ui(
     ctx: &egui::Context,
     ip_input: &mut String,
+    port_input: &mut String,
     input_text: &mut String,
     selected_file_path: &mut String,
     selected_json_path: &mut String,
+
     json_content: &mut String,
     log_message: &mut String
 ) {
@@ -24,10 +27,20 @@ pub fn render_ui(
                 // 新增的UI组件：Start Server按钮
                 if ui.button("Start Server").clicked() {
                     // 启动同一目录下的main.exe
-                    if let Err(err) = Command::new("main.exe").spawn() {
+                    if let Err(err) = Command::new("./server/main.exe").spawn() {
                         eprintln!("Failed to start main.exe: {:?}", err);
                     }
                 }
+                ui.label("port: ");
+                ui.text_edit_singleline(port_input);
+                if ui.button("Save Port Setting").clicked() && !port_input.is_empty() {
+                    let setting_path = "./server/setting.ini";
+                    if let Err(e) = write(setting_path, format!("port={}", port_input)) {
+                        eprintln!("Error writing to setting.ini: {:?}", e);
+                    }
+                }
+
+
                 ui.group(|ui| {
                     ui.label("Enter IP Address:");
                     ui.text_edit_singleline(ip_input);
@@ -60,6 +73,7 @@ pub fn render_ui(
                         }
                     }
                     ui.text_edit_singleline(selected_json_path);
+
 
                     if ui.button("Confirm").clicked() && !selected_file_path.is_empty() && !selected_json_path.is_empty() {
 
